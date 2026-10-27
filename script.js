@@ -1,5 +1,3 @@
-// This is the boilerplate code given for you
-// You can modify this code
 // Product data
 const products = [
   { id: 1, name: "Product 1", price: 10 },
@@ -11,27 +9,89 @@ const products = [
 
 // DOM elements
 const productList = document.getElementById("product-list");
+const cartList = document.getElementById("cart-list");
+const clearCartBtn = document.getElementById("clear-cart-btn");
+
+// Load cart from sessionStorage
+let cart = JSON.parse(sessionStorage.getItem("cart")) || [];
 
 // Render product list
 function renderProducts() {
+  productList.innerHTML = "";
+
   products.forEach((product) => {
     const li = document.createElement("li");
-    li.innerHTML = `${product.name} - $${product.price} <button class="add-to-cart-btn" data-id="${product.id}">Add to Cart</button>`;
+
+    li.innerHTML = `${product.name} - $${product.price} 
+      <button class="add-to-cart-btn" data-id="${product.id}">
+        Add to Cart
+      </button>`;
+
     productList.appendChild(li);
   });
 }
 
 // Render cart list
-function renderCart() {}
+function renderCart() {
+  cartList.innerHTML = "";
+
+  cart.forEach((product) => {
+    const li = document.createElement("li");
+
+    li.innerHTML = `${product.name} - $${product.price}
+      <button class="remove-from-cart-btn" data-id="${product.id}">
+        Remove
+      </button>`;
+
+    cartList.appendChild(li);
+  });
+
+  // Save current cart
+  sessionStorage.setItem("cart", JSON.stringify(cart));
+}
 
 // Add item to cart
-function addToCart(productId) {}
+function addToCart(productId) {
+  const product = products.find((p) => p.id === productId);
+
+  if (product) {
+    cart.push(product);
+    renderCart();
+  }
+}
 
 // Remove item from cart
-function removeFromCart(productId) {}
+function removeFromCart(productId) {
+  const index = cart.findIndex((p) => p.id === productId);
+
+  if (index !== -1) {
+    cart.splice(index, 1);
+    renderCart();
+  }
+}
 
 // Clear cart
-function clearCart() {}
+function clearCart() {
+  cart = [];
+  sessionStorage.setItem("cart", JSON.stringify(cart));
+  renderCart();
+}
+
+// Handle button clicks
+document.addEventListener("click", (event) => {
+  if (event.target.classList.contains("add-to-cart-btn")) {
+    const productId = Number(event.target.dataset.id);
+    addToCart(productId);
+  }
+
+  if (event.target.classList.contains("remove-from-cart-btn")) {
+    const productId = Number(event.target.dataset.id);
+    removeFromCart(productId);
+  }
+});
+
+// Clear cart button
+clearCartBtn.addEventListener("click", clearCart);
 
 // Initial render
 renderProducts();
